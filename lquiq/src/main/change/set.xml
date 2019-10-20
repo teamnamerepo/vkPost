@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+
+    <changeSet author="vk-api" id="v-1">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                <![CDATA[
+                    select count(1) from information_schema.tables where table_name = 'vk_post'
+               ]]>
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            <![CDATA[
+                create table vk_post (
+                   id serial,
+                   date date,
+                   text text,
+                   constraint "post_pk" primary key(id)
+            )
+            ]]>
+        </sql>
+    </changeSet>
+    <changeSet author="vk-api" id="v-2">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                <![CDATA[
+                    select count(1) from information_schema.tables where table_name = 'vk_attachment'
+               ]]>
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            <![CDATA[
+                create table vk_attachment (
+                    id serial,
+                    url text,
+                    post_id serial,
+                    constraint "attach_pk" primary key(id),
+                    constraint "post_fk" foreign key(post_id) references vk_post(id)
+            )
+            ]]>
+        </sql>
+    </changeSet>
+    <changeSet author="vk-api" id="v-3">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                <![CDATA[
+                    select count(1) from information_schema.columns where table_name = 'vk_attachment'
+                    and column_name = 'is_sent';
+               ]]>
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            <![CDATA[
+                alter table vk_post add column is_sent boolean
+
+            ]]>
+        </sql>
+    </changeSet>
+    <changeSet author="vk-api" id="v-4">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                <![CDATA[
+                    select count(1) from information_schema.columns where table_name = 'vk_post'
+                    and column_name = 'vk_id';
+               ]]>
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            <![CDATA[
+                alter table vk_post add column vk_id integer
+            ]]>
+        </sql>
+    </changeSet>
+    <changeSet author="vk-api" id="v-5">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="date">
+                <![CDATA[
+                    select data_type from information_schema.columns where table_name = 'vk_post'
+                    and column_name = 'date';
+               ]]>
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            <![CDATA[
+                alter table vk_post alter column date type timestamp without time zone;
+            ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
