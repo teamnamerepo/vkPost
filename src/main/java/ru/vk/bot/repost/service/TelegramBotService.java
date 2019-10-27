@@ -75,17 +75,23 @@ public class TelegramBotService extends TelegramLongPollingBot {
                         SendMediaGroup mediaGroup = new SendMediaGroup();
                         List<InputMedia> photoList = new ArrayList<>();
 
-                        for (VkAttachment photo : attachments) {
-                            InputMedia media = new InputMediaPhoto();
-                            media.setMedia("https://pp.vk.me" + photo.getUrl());
+                        attachments.stream()
+                                .filter(vkAttachment -> (!vkAttachment.getUrl().contains("http") &&
+                                        !vkAttachment.getUrl().contains("https"))
+                                )
+                                .forEach(vkAttachment -> {
+                                    InputMedia media = new InputMediaPhoto();
+                                    media.setMedia("https://pp.vk.me" + vkAttachment.getUrl());
 
-                            photoList.add(media);
-                        }
+                                    photoList.add(media);
+                                });
+
                         photoList.get(0).setCaption(post.getText());
                         mediaGroup.setChatId(chatId);
                         mediaGroup.setMedia(photoList);
-
-                        execute(mediaGroup);
+                        if (!photoList.isEmpty()) {
+                            execute(mediaGroup);
+                        }
                         post.setIsSent(true);
                     } else {
                         if (attachments.size() == 1) {
@@ -93,10 +99,20 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
                             message.setParseMode("html");
                             message.setChatId(chatId);
-                            message.setText(post.getText() + "<a href = \""
-                                    + "https://pp.vk.me"
-                                    + attachments.get(0).getUrl()
-                                    + "\">&#8205;</a>");
+
+                            if (!attachments.get(0).getUrl().contains("https")) {
+                                if (post.getText().contains(attachments.get(0).getUrl())) {
+                                    post.setText(post.getText().replace(attachments.get(0).getUrl(), ""));
+                                }
+                                message.setText(post.getText() + "<a href = \""
+                                        + "https://pp.vk.me"
+                                        + attachments.get(0).getUrl()
+                                        + "\">&#8205;</a>");
+                            } else {
+                                message.setText(post.getText() + "<a href = \""
+                                        + attachments.get(0).getUrl()
+                                        + "\">&#8205;</a>");
+                            }
                             execute(message);
                             post.setIsSent(true);
                         }

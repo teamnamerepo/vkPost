@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import ru.vk.bot.repost.entities.VkAttachment;
 import ru.vk.bot.repost.entities.VkPost;
 import ru.vk.bot.repost.enums.PhotoSizeEnum;
@@ -20,7 +21,6 @@ import ru.vk.bot.repost.repository.VkPostRepository;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -110,7 +110,29 @@ public class VkApiRequestService {
                                 }
                             }
                             attachmentForBd.setPost(postForBd);
-                            attachmentsForBd.add(attachmentForBd);
+                            if (!StringUtils.isEmpty(attachmentForBd.getUrl())) {
+                                attachmentsForBd.add(attachmentForBd);
+                            }
+                        }
+                        String[] splittedTextForReference = post.getText().split("https");
+                        String referenceUrl = "";
+                        VkAttachment referenceAttachment = new VkAttachment();
+
+                        if (splittedTextForReference.length == 2) {
+                            if (splittedTextForReference[1].indexOf(' ') != -1) {
+                                referenceUrl = "https" + splittedTextForReference[1]
+                                        .substring(
+                                                0, splittedTextForReference[1].indexOf(' ')
+                                        );
+                            } else {
+                                referenceUrl = "https" + splittedTextForReference[1];
+                            }
+                        }
+                        if (!StringUtils.isEmpty(referenceUrl)) {
+
+                            referenceAttachment.setPost(postForBd);
+                            referenceAttachment.setUrl(referenceUrl);
+                            attachmentsForBd.add(referenceAttachment);
                         }
                     }
                     postForBd.setAttachments(attachmentsForBd);
