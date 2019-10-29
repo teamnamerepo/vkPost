@@ -89,6 +89,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                         photoList.get(0).setCaption(post.getText());
                         mediaGroup.setChatId(chatId);
                         mediaGroup.setMedia(photoList);
+
                         if (!photoList.isEmpty()) {
                             execute(mediaGroup);
                         }
