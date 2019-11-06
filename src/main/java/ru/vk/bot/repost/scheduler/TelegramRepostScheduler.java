@@ -18,10 +18,6 @@ public class TelegramRepostScheduler {
 
     @Scheduled(fixedDelay = delay)
     public void doRepost() {
-        try {
             service.repost();
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
     }
 }
