@@ -37,7 +37,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     @Value("${tg.bot.name}")
     private String name;
 
-    private static final long chatId =  363052334;//-1001247006240L;
+    private static final long chatId = -1001247006240L; //363052334;
 
     @Autowired
     public TelegramBotService(DefaultBotOptions options) {
@@ -84,7 +84,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
                                         InputMedia media = new InputMediaPhoto();
 
                                         media.setMedia("https://pp.vk.me" + vkAttachment.getUrl());
-                                        System.out.println(vkAttachment.getUrl());
                                         photoList.add(media);
                                     });
 
@@ -92,11 +91,9 @@ public class TelegramBotService extends TelegramLongPollingBot {
                             mediaGroup.setChatId(chatId);
                             mediaGroup.setMedia(photoList);
 
-
                             if (!photoList.isEmpty()) {
                                 execute(mediaGroup);
                             }
-                            post.setIsSent(true);
                         } else {
                             if (attachments.size() == 1) {
                                 SendMessage message = new SendMessage();
@@ -105,20 +102,21 @@ public class TelegramBotService extends TelegramLongPollingBot {
                                 message.setChatId(chatId);
 
                                 if (!attachments.get(0).getUrl().contains("https")) {
+
+                                        message.setText(post.getText() + "<a href = \""
+                                                + "https://pp.vk.me"
+                                                + attachments.get(0).getUrl()
+                                                + "\">&#8205;</a>");
+                                } else {
                                     if (post.getText().contains(attachments.get(0).getUrl())) {
                                         post.setText(post.getText().replace(attachments.get(0).getUrl(), ""));
                                     }
-                                    message.setText(post.getText() + "<a href = \""
-                                            + "https://pp.vk.me"
-                                            + attachments.get(0).getUrl()
-                                            + "\">&#8205;</a>");
-                                } else {
-                                    message.setText(post.getText() + "<a href = \""
-                                            + attachments.get(0).getUrl()
-                                            + "\">&#8205;</a>");
+                                        message.setText(post.getText() + "<a href = \""
+                                                + attachments.get(0).getUrl()
+                                                + "\">&#8205;</a>");
+
                                 }
                                 execute(message);
-                                post.setIsSent(true);
                             }
                         }
                     } else {
@@ -128,7 +126,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
                         message.setText(post.getText());
 
                         execute(message);
-                        post.setIsSent(true);
                     }
                 } catch (TelegramApiException e ) {
                     e.printStackTrace();

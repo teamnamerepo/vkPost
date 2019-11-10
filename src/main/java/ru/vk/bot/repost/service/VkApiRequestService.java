@@ -21,6 +21,7 @@ import ru.vk.bot.repost.repository.VkPostRepository;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public class VkApiRequestService {
     private final static String regExp = "^.*(https://m\\.youtube|https://www\\.twitch\\.tv/|https://youtu\\.be/).*$";
     private final static Pattern pattern = Pattern.compile(regExp);
 
-    private static final int targetGroupId = -79268570;
+    private static final int targetGroupId =  -79268570; //-139228227;
 
     @Transactional
     public void createPost() {
@@ -56,7 +57,6 @@ public class VkApiRequestService {
                     .ownerId(targetGroupId)
                     .execute();
             List<WallpostFull> postListFromResponse = response.getItems();
-            System.out.println(postListFromResponse);
 
             List<VkPost> existingListFromDb = postRepository.findByVkIdIn(postListFromResponse.stream()
                     .map(WallpostFull::getId)
@@ -68,9 +68,13 @@ public class VkApiRequestService {
                             !post.getText().contains("http://") && !post.getText().contains("https://"))
                     )
                     .filter(post -> {
-                                if (post.getAttachments().stream().map(wallPost -> wallPost.getType().getValue())
-                                        .collect(Collectors.toList()).contains("video")) {
-                                    return pattern.matcher(post.getText()).matches();
+                                if (!CollectionUtils.isEmpty(post.getAttachments())) {
+                                    if (post.getAttachments().stream().map(wallPost -> wallPost.getType()
+                                            .getValue()).collect(Collectors.toList()).contains("video")) {
+                                        return pattern.matcher(post.getText()).matches();
+                                    } else {
+                                        return true;
+                                    }
                                 } else {
                                     return true;
                                 }
@@ -99,10 +103,10 @@ public class VkApiRequestService {
 
                                     if (attachmentForBd.getUrl() == null) {
                                         photo.getSizes().stream()
-                                                .filter(photoSizes -> size.getValue().equals(photoSizes.getType().getValue())
+                                                .filter(photoSize -> size.getValue().equals(photoSize.getType().getValue())
                                                 )
                                                 .findAny()
-                                                .ifPresent(photoSizes -> attachmentForBd.setUrl(photoSizes.getUrl().getPath())
+                                                .ifPresent(photoSize -> attachmentForBd.setUrl(photoSize.getUrl().getPath())
                                                 );
                                     } else {
                                         break;

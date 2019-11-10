@@ -14,7 +14,7 @@ public class TelegramRepostScheduler {
 
     @Autowired
     TelegramBotService service;
-    private static final int delay = 60000;
+    private static final int delay =  10000;//60000;
 
     @Scheduled(fixedDelay = delay)
     public void doRepost() {
