@@ -11,7 +11,7 @@ import ru.vk.bot.repost.service.VkApiRequestService;
 @Component
 public class ApiRequestScheduler {
 
-    private static final int delay = 10000; //60000;
+    private static final int delay = 60000;
 
     @Autowired
     VkApiRequestService requestService;
