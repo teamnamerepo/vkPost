@@ -12,6 +12,7 @@ public enum PhotoSizeEnum {
     MEDIUM_SIZE_QUALITY("x"),
     MIN_SIZE_QUALITY("s");
 
+
     String value;
 
     PhotoSizeEnum(String value) {

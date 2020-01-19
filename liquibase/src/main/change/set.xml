@@ -75,6 +75,7 @@
         </sql>
     </changeSet>
     <changeSet author="vk-api" id="v-5">
+
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="date">
                 <![CDATA[
@@ -89,5 +90,6 @@
             ]]>
         </sql>
     </changeSet>
+
 
 </databaseChangeLog>

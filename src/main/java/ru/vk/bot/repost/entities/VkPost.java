@@ -1,5 +1,7 @@
 package ru.vk.bot.repost.entities;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -18,11 +20,12 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class VkPost implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    Long id;
 
     @Temporal(value = TemporalType.TIMESTAMP)
     Date date;
@@ -39,5 +42,15 @@ public class VkPost implements Serializable {
     )
     List<VkAttachment> attachments;
 
-
+    @Override
+    public String toString() {
+        return "VkPost{" +
+                "id=" + id +
+                ", date=" + date +
+                ", text='" + text + '\'' +
+                ", vkId=" + vkId +
+                ", isSent=" + isSent +
+                ", attachments=" + attachments +
+                '}';
+    }
 }
