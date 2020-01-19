@@ -12,34 +12,40 @@ import ru.vk.bot.repost.service.TelegramBotService;
 /**
  * @author Lev_S
  */
+
 @RestController
 @RequestMapping("/management")
-public class VkApiController {
+public class ManagementController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(VkApiController.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(ManagementController.class);
 
     @Autowired
     TelegramBotService service;
 
     @GetMapping("/proceed")
-    public void proceedInvocation(@RequestParam(value = "amount", required = false) Integer amount) {
+    public void proceedInvocation(@RequestParam(value = "amount", defaultValue = "1") Integer amount,
+                                  @RequestParam(value = "jobStart", defaultValue = "true") boolean doStartJob) {
+        if (TelegramBotService.isStopped) {
+            service.flushDefinedAmountOfPosts(amount);
+            LOGGER.info(amount + " posts have been sent");
 
-        if (TelegramBotService.isStoped()) {
-            if (amount == null) {
-                TelegramBotService.setStoped(false);
+            if (doStartJob) {
+                TelegramBotService.isStopped = false;
                 LOGGER.info("Requesting has been proceeded");
-            } else {
-                service.flushDefinedAmountOfPosts(amount);
-                LOGGER.info(amount + " posts have been sent");
             }
         }
     }
 
     @GetMapping("/stop")
     public void stopInvocation() {
-        if (!TelegramBotService.isStoped()) {
-            TelegramBotService.setStoped(true);
+        if (!TelegramBotService.isStopped) {
+            TelegramBotService.isStopped = true;
             LOGGER.info("Requesting has been stoped");
         }
+    }
+
+    @GetMapping("/status")
+    public String getStatusOfJob() {
+        return TelegramBotService.isStopped ? "Job is working" : "Job was stopped";
     }
 }
