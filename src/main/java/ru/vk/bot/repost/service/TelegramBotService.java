@@ -35,9 +35,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     private final Logger LOGGER = LoggerFactory.getLogger(TelegramBotService.class);
 
-    @Getter
-    @Setter
-    private static boolean isStoped = true;
+    public static boolean isStopped = true;
 
     @Autowired
     VkPostRepository repository;
@@ -48,7 +46,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
     @Value("${tg.bot.name}")
     private String name;
 
-    @Getter
     private static final long CHAT_ID =  363052334; //-1001247006240L;
 
     @Autowired
@@ -57,9 +54,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     }
 
     @Override
-    public void onUpdateReceived(Update update) {
-
-    }
+    public void onUpdateReceived(Update update) {}
 
     @Override
     public String getBotUsername() {
@@ -73,12 +68,10 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     @Transactional
     public void repost() {
-
-        if (!isStoped) {
+        if (!isStopped) {
             List<VkPost> postsFromDb = repository.findAllByIsSentFalse();
 
             if (!postsFromDb.isEmpty()) {
-
                 postsFromDb.sort(Comparator.comparing(VkPost::getDate));
                 for (VkPost post : postsFromDb) {
                     execute(post);
@@ -89,10 +82,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
 
-
     @Transactional
     public void execute(VkPost post) {
-
         try {
             if (!post.getAttachments().isEmpty()) {
 
@@ -104,8 +95,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
                     attachments.stream()
                             .filter(vkAttachment -> (!vkAttachment.getUrl().contains("http") &&
-                                    !vkAttachment.getUrl().contains("https"))
-                            )
+                                    !vkAttachment.getUrl().contains("https")))
                             .forEach(vkAttachment -> {
                                 InputMedia media = new InputMediaPhoto();
 
@@ -148,7 +138,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
                     }
                 }
             } else {
-
                 if ((Instant.now().getEpochSecond()
                         - post.getDate().toInstant().getEpochSecond()) > 800) {
                     execute(
@@ -162,7 +151,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             e.printStackTrace();
             LOGGER.error(post.toString());
-
         } finally {
             if (!post.getAttachments().isEmpty()) {
                 post.setIsSent(true);
@@ -172,7 +160,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     @Transactional
     public void flushDefinedAmountOfPosts(Integer amount) {
-
         List<VkPost> allByIsSentFalse = repository.findAllByIsSentFalse();
 
         allByIsSentFalse.stream()
@@ -186,7 +173,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                         try {
                             execute(
                                     new SendMessage(
-                                            TelegramBotService.getCHAT_ID(),
+                                            CHAT_ID,
                                             post.getText()
                                     ));
                         } catch (TelegramApiException e) {
@@ -194,6 +181,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                         }
                     }
                 });
+
         allByIsSentFalse.forEach(post -> post.setIsSent(true));
         repository.saveAll(allByIsSentFalse);
     }

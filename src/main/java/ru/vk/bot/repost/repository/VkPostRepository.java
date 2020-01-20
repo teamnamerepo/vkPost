@@ -14,8 +14,6 @@ import java.util.List;
 @Repository
 public interface VkPostRepository extends JpaRepository<VkPost, Long> {
 
-    List<VkPost> findByIdIn(List<Integer> idList);
-
     List<VkPost> findByVkIdIn(List<Integer> idList);
 
     List<VkPost> findAllByIsSentFalse();

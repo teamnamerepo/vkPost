@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ru.vk.bot.repost.service.VkApiRequestService;
 
 /**
@@ -20,6 +21,7 @@ public class ApiRequestScheduler {
     @Autowired
     VkApiRequestService requestService;
 
+    @Transactional
     @Scheduled(fixedDelay = DELAY)
     public void doRequest() {
         requestService.createPost();
@@ -29,7 +31,6 @@ public class ApiRequestScheduler {
     public void checkForUpdatedPosts() {
         try {
             requestService.tryToUpdate();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
