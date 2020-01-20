@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.vk.bot.repost.entities.VkAttachment;
 import ru.vk.bot.repost.entities.VkPost;
 import ru.vk.bot.repost.enums.PhotoSizeEnum;
@@ -181,7 +179,9 @@ public class VkApiRequestService {
 
         List<VkPost> allPostsWithoutAttachments = postRepository.findAllWithoutAttachments(
                 Instant.now().getEpochSecond()
-                , 30L);
+                , 600L);
+
+        System.out.println(Instant.now().getEpochSecond() - postRepository.findById(1179L).get().getDate().toInstant().getEpochSecond());
 
         LOGGER.info("Posts without attachments size is " + allPostsWithoutAttachments.size());
 
