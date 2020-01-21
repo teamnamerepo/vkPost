@@ -36,6 +36,9 @@ public class VkPost implements Serializable {
 
     Boolean isSent;
 
+    @Column(name = "preparedtopost")
+    Boolean preparedToPost;
+
     @OneToMany(fetch = FetchType.EAGER,
             mappedBy = "post",
             cascade = CascadeType.ALL

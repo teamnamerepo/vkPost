@@ -84,20 +84,20 @@ public class VkApiRequestService {
                     .stream()
                     .filter(
                             post ->
-                            (
-                                    PATTERN.matcher(post.getText()).matches()
-                                    || (!post.getText().contains("http://") && !post.getText().contains("https://"))
-                                    && Arrays
-                                        .stream(post.getText().split("."))
-                                        .allMatch(
-                                                str -> !str.startsWith("ru")
-                                                        && !str.startsWith("com")
-                                                        && !str.startsWith("pro")
-                                                        && !str.startsWith("net")
-                                        )
-                                    && !post.isMarkedAsAds()
-                                    && CollectionUtils.isEmpty(post.getCopyHistory())
-                            )
+                                    (
+                                            PATTERN.matcher(post.getText()).matches()
+                                                    || (!post.getText().contains("http://") && !post.getText().contains("https://"))
+                                                    && Arrays
+                                                    .stream(post.getText().split("."))
+                                                    .allMatch(
+                                                            str -> !str.startsWith("ru")
+                                                                    && !str.startsWith("com")
+                                                                    && !str.startsWith("pro")
+                                                                    && !str.startsWith("net")
+                                                    )
+                                                    && !post.isMarkedAsAds()
+                                                    && CollectionUtils.isEmpty(post.getCopyHistory())
+                                    )
                     )
                     .filter(
                             post -> {
@@ -112,76 +112,81 @@ public class VkApiRequestService {
                                 }
                             }
                     ).forEach(post -> {
-                        if (!existingSetFromDb.contains(post.getId())) {
-                            VkPost postForBd = new VkPost();
+                if (!existingSetFromDb.contains(post.getId())) {
+                    VkPost postForBd = new VkPost();
 
-                            postForBd.setVkId(post.getId());
-                            postForBd.setText(post.getText());
-                            postForBd.setIsSent(false);
-                            postForBd.setDate(new Timestamp(new Date().getTime()));
+                    postForBd.setVkId(post.getId());
+                    postForBd.setText(post.getText());
+                    postForBd.setIsSent(false);
+                    postForBd.setPreparedToPost(false);
+                    postForBd.setDate(new Timestamp(new Date().getTime()));
 
-                            List<VkAttachment> attachmentsForBd = new ArrayList<>();
-                            if (!CollectionUtils.isEmpty(post.getAttachments())) {
+                    List<VkAttachment> attachmentsForBd = new ArrayList<>();
+                    if (!CollectionUtils.isEmpty(post.getAttachments())) {
 
-                                for (WallpostAttachment attachmentFromResponse : post.getAttachments()) {
-                                    VkAttachment attachmentForBd = new VkAttachment();
-                                    attachmentForBd.setPost(postForBd);
+                        for (WallpostAttachment attachmentFromResponse : post.getAttachments()) {
+                            VkAttachment attachmentForBd = new VkAttachment();
+                            attachmentForBd.setPost(postForBd);
 
-                                    String attachmentType = attachmentFromResponse.getType().getValue();
-                                    if ("photo".equals(attachmentType)) {
-                                        Photo photo = attachmentFromResponse.getPhoto();
+                            String attachmentType = attachmentFromResponse.getType().getValue();
+                            if ("photo".equals(attachmentType)) {
+                                Photo photo = attachmentFromResponse.getPhoto();
 
-                                        for (PhotoSizeEnum size : PhotoSizeEnum.values()) {
-                                            if (attachmentForBd.getUrl() != null) {
-                                                break;
-                                            }
-                                            photo.getSizes().stream()
-                                                    .filter(photoSize -> size.getValue().equals(photoSize.getType().getValue()))
-                                                    .findAny()
-                                                    .ifPresent(photoSize -> attachmentForBd.setUrl(photoSize.getUrl().getPath()));
-                                        }
-                                    } else if ("doc".equals(attachmentType)) {
-                                        attachmentForBd.setUrl(
-                                                attachmentFromResponse
-                                                        .getDoc()
-                                                        .getUrl()
-                                                        .getPath()
-                                        );
+                                for (PhotoSizeEnum size : PhotoSizeEnum.values()) {
+                                    if (attachmentForBd.getUrl() != null) {
+                                        break;
                                     }
-
-                                    if (!StringUtils.isEmpty(attachmentForBd.getUrl())) {
-                                        attachmentsForBd.add(attachmentForBd);
-                                    }
+                                    photo.getSizes().stream()
+                                            .filter(photoSize -> size.getValue().equals(photoSize.getType().getValue()))
+                                            .findAny()
+                                            .ifPresent(photoSize -> attachmentForBd.setUrl(photoSize.getUrl().getPath()));
                                 }
-
-                                String[] splittedTextForReference = post.getText().split("https");
-                                String referenceUrl = "";
-
-                                if (splittedTextForReference.length == 2) {
-                                    if (splittedTextForReference[1].indexOf(' ') != -1) {
-                                        referenceUrl = "https" + splittedTextForReference[1]
-                                                .substring(0, splittedTextForReference[1].indexOf(' '));
-                                    } else {
-                                        referenceUrl = "https" + splittedTextForReference[1];
-                                    }
-                                }
-
-                                VkAttachment referenceAttachment = new VkAttachment();
-                                if (!StringUtils.isEmpty(referenceUrl)) {
-                                    referenceAttachment.setPost(postForBd);
-                                    referenceAttachment.setUrl(referenceUrl);
-                                    attachmentsForBd.add(referenceAttachment);
-                                }
+                            } else if ("doc".equals(attachmentType)) {
+                                attachmentForBd.setUrl(
+                                        attachmentFromResponse
+                                                .getDoc()
+                                                .getUrl()
+                                                .getPath()
+                                );
                             }
-                            postForBd.setAttachments(attachmentsForBd);
-                            postsForBd.add(postForBd);
+
+                            if (!StringUtils.isEmpty(attachmentForBd.getUrl())) {
+                                attachmentsForBd.add(attachmentForBd);
+                            }
                         }
-                    });
+                        if (!attachmentsForBd.isEmpty()) {
+                            postForBd.setPreparedToPost(true);
+                        }
+
+                        String[] splittedTextForReference = post.getText().split("https");
+                        String referenceUrl = "";
+
+                        if (splittedTextForReference.length == 2) {
+                            if (splittedTextForReference[1].indexOf(' ') != -1) {
+                                referenceUrl = "https" + splittedTextForReference[1]
+                                        .substring(0, splittedTextForReference[1].indexOf(' '));
+                            } else {
+                                referenceUrl = "https" + splittedTextForReference[1];
+                            }
+                        }
+
+                        VkAttachment referenceAttachment = new VkAttachment();
+                        if (!StringUtils.isEmpty(referenceUrl)) {
+                            referenceAttachment.setPost(postForBd);
+                            referenceAttachment.setUrl(referenceUrl);
+                            attachmentsForBd.add(referenceAttachment);
+                        }
+                    }
+                    postForBd.setAttachments(attachmentsForBd);
+                    postsForBd.add(postForBd);
+                }
+            });
 
             postRepository.saveAll(postsForBd);
 
             LOGGER.info("Posts with id's were created: "
                     + postsForBd.stream().map(VkPost::getVkId).collect(Collectors.toList()));
+
         } catch (ApiException | ClientException e) {
             e.printStackTrace();
         }
@@ -189,11 +194,13 @@ public class VkApiRequestService {
 
     public void tryToUpdate() throws Exception {
 
-        List<VkPost> allPostsWithoutAttachments = postRepository.findAllWithoutAttachments(
-                Instant.now().getEpochSecond()
-                , 600L);
-
-        System.out.println(Instant.now().getEpochSecond() - postRepository.findById(1179L).get().getDate().toInstant().getEpochSecond());
+        List<VkPost> allPostsWithoutAttachments =
+                postRepository
+                        .findAllWithoutAttachmentsAndPreparedFalse()
+                        .stream()
+                        .filter(p -> (Instant.now().getEpochSecond()
+                                - p.getDate().toInstant().getEpochSecond()) > 600L)
+                        .collect(Collectors.toList());
 
         LOGGER.info("Posts without attachments size is " + allPostsWithoutAttachments.size());
 
@@ -267,6 +274,7 @@ public class VkApiRequestService {
                     }
                 }
             });
+            allPostsWithoutAttachments.forEach(p -> p.setPreparedToPost(true));
             postRepository.saveAll(allPostsWithoutAttachments);
         }
     }

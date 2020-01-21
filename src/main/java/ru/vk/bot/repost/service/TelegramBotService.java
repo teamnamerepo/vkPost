@@ -46,7 +46,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     @Value("${tg.bot.name}")
     private String name;
 
-    private static final long CHAT_ID =  363052334; //-1001247006240L;
+    private static final long CHAT_ID = 363052334; //-1001247006240L;
 
     @Autowired
     public TelegramBotService(DefaultBotOptions options) {
@@ -54,7 +54,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
     }
 
     @Override
-    public void onUpdateReceived(Update update) {}
+    public void onUpdateReceived(Update update) {
+    }
 
     @Override
     public String getBotUsername() {
@@ -69,7 +70,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     @Transactional
     public void repost() {
         if (!isStopped) {
-            List<VkPost> postsFromDb = repository.findAllByIsSentFalse();
+            List<VkPost> postsFromDb = repository.findAllByIsSentFalseAndPreparedToPostTrue();
 
             if (!postsFromDb.isEmpty()) {
                 postsFromDb.sort(Comparator.comparing(VkPost::getDate));
@@ -138,23 +139,17 @@ public class TelegramBotService extends TelegramLongPollingBot {
                     }
                 }
             } else {
-                if ((Instant.now().getEpochSecond()
-                        - post.getDate().toInstant().getEpochSecond()) > 800) {
-                    execute(
-                            new SendMessage(
-                                    CHAT_ID,
-                                    post.getText()
-                            ));
-                    post.setIsSent(true);
-                }
+                execute(
+                        new SendMessage(
+                                CHAT_ID,
+                                post.getText()
+                        ));
             }
         } catch (TelegramApiException e) {
             e.printStackTrace();
             LOGGER.error(post.toString());
         } finally {
-            if (!post.getAttachments().isEmpty()) {
-                post.setIsSent(true);
-            }
+            post.setIsSent(true);
         }
     }
 

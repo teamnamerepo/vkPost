@@ -40,7 +40,7 @@ public class ManagementController {
     public void stopInvocation() {
         if (!TelegramBotService.isStopped) {
             TelegramBotService.isStopped = true;
-            LOGGER.info("Requesting has been stoped");
+            LOGGER.info("Requesting has been stopped");
         }
     }
 

@@ -47,7 +47,7 @@
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">
                 <![CDATA[
-                    select count(1) from information_schema.columns where table_name = 'vk_attachment'
+                    select count(1) from information_schema.columns where table_name = 'vk_post'
                     and column_name = 'is_sent';
                ]]>
             </sqlCheck>
@@ -87,6 +87,21 @@
         <sql>
             <![CDATA[
                 alter table vk_post alter column date type timestamp without time zone;
+            ]]>
+        </sql>
+    </changeSet>
+    <changeSet id="v-6" author="vk-api">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                <![CDATA[
+                    select count(c.column_name) from information_schema.columns c where table_name = 'vk_post' and
+                    column_name = 'preparedToPost';
+                ]]>
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            <![CDATA[
+                alter table vk_post add column preparedToPost boolean;
             ]]>
         </sql>
     </changeSet>

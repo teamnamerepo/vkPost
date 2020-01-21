@@ -28,4 +28,11 @@ public interface VkPostRepository extends JpaRepository<VkPost, Long> {
     )
     List<VkPost> findAllWithoutAttachments(@Param("now") Long now, @Param("howLong") Long time);
 
+    List<VkPost> findAllByIsSentFalseAndPreparedToPostTrue();
+
+    @Query(nativeQuery = true, value = "select * from vk_post p where p.id not in (select att.post_id from vk_attachment att where att.post_id = p.id) " +
+            "and p.preparedtopost = false")
+    List<VkPost> findAllWithoutAttachmentsAndPreparedFalse();
+
+
 }
