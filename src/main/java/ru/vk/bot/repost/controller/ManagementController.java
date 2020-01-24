@@ -1,5 +1,6 @@
 package ru.vk.bot.repost.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,12 @@ import ru.vk.bot.repost.service.TelegramBotService;
 
 @RestController
 @RequestMapping("/management")
+@RequiredArgsConstructor
 public class ManagementController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ManagementController.class);
 
-    @Autowired
-    TelegramBotService service;
+    private final TelegramBotService service;
 
     @GetMapping("/proceed")
     public void proceedInvocation(@RequestParam(value = "amount", defaultValue = "1") Integer amount,

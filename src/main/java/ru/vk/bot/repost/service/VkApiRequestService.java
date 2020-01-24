@@ -9,11 +9,10 @@ import com.vk.api.sdk.objects.wall.WallpostAttachment;
 import com.vk.api.sdk.objects.wall.WallpostFull;
 import com.vk.api.sdk.objects.wall.responses.GetResponse;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import ru.vk.bot.repost.entities.VkAttachment;
@@ -33,21 +32,18 @@ import java.util.stream.Collectors;
 
 @Service
 @Data
+@RequiredArgsConstructor
 public class VkApiRequestService {
 
     Logger LOGGER = LoggerFactory.getLogger(VkApiRequestService.class);
 
-    @Autowired
-    private ServiceActor actor;
+    private final ServiceActor actor;
 
-    @Autowired
-    private VkApiClient client;
+    private final VkApiClient client;
 
-    @Autowired
-    private VkPostRepository postRepository;
+    private final VkPostRepository postRepository;
 
-    @Autowired
-    private TelegramBotService botService;
+    private final TelegramBotService botService;
 
     private final static Pattern PATTERN = Pattern
             .compile("^.*(https://m\\.youtube|https://www\\.twitch\\.tv/|https://youtu\\.be/).*$");
@@ -149,7 +145,6 @@ public class VkApiRequestService {
                                                 .getPath()
                                 );
                             }
-
                             if (!StringUtils.isEmpty(attachmentForBd.getUrl())) {
                                 attachmentsForBd.add(attachmentForBd);
                             }

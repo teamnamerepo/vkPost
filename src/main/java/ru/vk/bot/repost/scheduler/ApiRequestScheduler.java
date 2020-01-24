@@ -1,7 +1,7 @@
 package ru.vk.bot.repost.scheduler;
 
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -14,12 +14,12 @@ import ru.vk.bot.repost.service.VkApiRequestService;
 @Data
 @Component
 @Profile("!test")
+@RequiredArgsConstructor
 public class ApiRequestScheduler {
 
     private static final int DELAY = 60000;
 
-    @Autowired
-    VkApiRequestService requestService;
+    private final VkApiRequestService requestService;
 
     @Transactional
     @Scheduled(fixedDelay = DELAY)

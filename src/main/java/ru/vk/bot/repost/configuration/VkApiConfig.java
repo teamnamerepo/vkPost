@@ -22,8 +22,7 @@ import java.net.PasswordAuthentication;
 @Configuration
 public class VkApiConfig {
 
-    @Autowired
-    Environment environment;
+    private final Environment environment;
 
     @Value("${application.id}")
     private Integer appId;
@@ -33,6 +32,11 @@ public class VkApiConfig {
 
     @Value("${access.token}")
     private String token;
+
+    @Autowired
+    public VkApiConfig(Environment environment) {
+        this.environment = environment;
+    }
 
     @Bean
     public VkApiClient getVkApiClient() {

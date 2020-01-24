@@ -1,7 +1,5 @@
 package ru.vk.bot.repost.service;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,6 @@ import ru.vk.bot.repost.entities.VkAttachment;
 import ru.vk.bot.repost.entities.VkPost;
 import ru.vk.bot.repost.repository.VkPostRepository;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -37,8 +34,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     public static boolean isStopped = true;
 
-    @Autowired
-    VkPostRepository repository;
+    private final VkPostRepository repository;
 
     @Value("${tg.bot.token}")
     private String token;
@@ -49,8 +45,9 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private static final long CHAT_ID = 363052334; //-1001247006240L;
 
     @Autowired
-    public TelegramBotService(DefaultBotOptions options) {
+    public TelegramBotService(DefaultBotOptions options, VkPostRepository repository) {
         super(options);
+        this.repository = repository;
     }
 
     @Override
@@ -71,6 +68,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     public void repost() {
         if (!isStopped) {
             List<VkPost> postsFromDb = repository.findAllByIsSentFalseAndPreparedToPostTrue();
+
 
             if (!postsFromDb.isEmpty()) {
                 postsFromDb.sort(Comparator.comparing(VkPost::getDate));
