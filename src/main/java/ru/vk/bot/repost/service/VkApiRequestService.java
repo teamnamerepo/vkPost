@@ -50,7 +50,7 @@ public class VkApiRequestService {
     private final static Pattern PATTERN = Pattern
             .compile("^.*(https://m\\.youtube|https://www\\.twitch\\.tv/|https://youtu\\.be/).*$");
 
-    private static final Integer TARGET_GROUP_ID = -139228227; //-79268570;
+    private static final Integer TARGET_GROUP_ID = -79268570; //-139228227;
 
     private static final Integer countOfVkPosts = 5;
 
