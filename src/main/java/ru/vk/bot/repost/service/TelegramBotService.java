@@ -28,6 +28,7 @@ import java.util.List;
  */
 
 @Service
+@Transactional
 public class TelegramBotService extends TelegramLongPollingBot {
 
     private final Logger LOGGER = LoggerFactory.getLogger(TelegramBotService.class);
@@ -64,7 +65,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
         return token;
     }
 
-    @Transactional
     public void repost() {
         if (!isStopped) {
             List<VkPost> postsFromDb = repository.findAllByIsSentFalseAndPreparedToPostTrue();
@@ -81,7 +81,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
 
-    @Transactional
     public void execute(VkPost post) {
         try {
             if (!post.getAttachments().isEmpty()) {
@@ -151,7 +150,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
 
-    @Transactional
     public void flushDefinedAmountOfPosts(Integer amount) {
         List<VkPost> allByIsSentFalse = repository.findAllByIsSentFalse();
 
@@ -159,21 +157,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 .sorted(Comparator.comparing(VkPost::getDate).reversed())
                 .limit(amount)
                 .sorted(Comparator.comparing(VkPost::getDate))
-                .forEach(post -> {
-                    if (!post.getAttachments().isEmpty()) {
-                        execute(post);
-                    } else {
-                        try {
-                            execute(
-                                    new SendMessage(
-                                            CHAT_ID,
-                                            post.getText()
-                                    ));
-                        } catch (TelegramApiException e) {
-                            post.setIsSent(true);
-                        }
-                    }
-                });
+                .forEach(this::execute);
 
         allByIsSentFalse.forEach(post -> post.setIsSent(true));
         repository.saveAll(allByIsSentFalse);

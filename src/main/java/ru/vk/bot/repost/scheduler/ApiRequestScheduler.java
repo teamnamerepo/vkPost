@@ -21,7 +21,6 @@ public class ApiRequestScheduler {
 
     private final VkApiRequestService requestService;
 
-    @Transactional
     @Scheduled(fixedDelay = DELAY)
     public void doRequest() {
         requestService.createPost();

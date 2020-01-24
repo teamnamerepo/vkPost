@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import ru.vk.bot.repost.entities.VkAttachment;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 @Service
 @Data
 @RequiredArgsConstructor
+@Transactional
 public class VkApiRequestService {
 
     Logger LOGGER = LoggerFactory.getLogger(VkApiRequestService.class);
