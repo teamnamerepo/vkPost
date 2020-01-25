@@ -157,6 +157,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 .sorted(Comparator.comparing(VkPost::getDate).reversed())
                 .limit(amount)
                 .sorted(Comparator.comparing(VkPost::getDate))
+                .peek(p -> p.setPreparedToPost(true))
                 .forEach(this::execute);
 
         allByIsSentFalse.forEach(post -> post.setIsSent(true));
