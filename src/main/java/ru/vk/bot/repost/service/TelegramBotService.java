@@ -43,7 +43,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     @Value("${tg.bot.name}")
     private String name;
 
-    private static final long CHAT_ID = -1001247006240L; //363052334;
+    private static final long CHAT_ID = 363052334; //-1001247006240L;
 
     @Autowired
     public TelegramBotService(DefaultBotOptions options, VkPostRepository repository) {
@@ -68,7 +68,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
     public void repost() {
         if (!isStopped) {
             List<VkPost> postsFromDb = repository.findAllByIsSentFalseAndPreparedToPostTrue();
-
 
             if (!postsFromDb.isEmpty()) {
                 postsFromDb.sort(Comparator.comparing(VkPost::getDate));

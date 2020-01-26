@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.vk.bot.repost.service.TelegramBotService;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Lev_S
  */
@@ -42,11 +45,12 @@ public class ManagementController {
         if (!TelegramBotService.isStopped) {
             TelegramBotService.isStopped = true;
             LOGGER.info("Requesting has been stopped");
+
         }
     }
 
     @GetMapping("/status")
     public String getStatusOfJob() {
-        return TelegramBotService.isStopped ? "Job is working" : "Job was stopped";
+        return !TelegramBotService.isStopped ? "Job was stopped" : "Job is working";
     }
 }
