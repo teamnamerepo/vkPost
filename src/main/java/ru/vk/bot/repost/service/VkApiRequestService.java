@@ -24,6 +24,7 @@ import ru.vk.bot.repost.repository.VkPostRepository;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -51,6 +52,8 @@ public class VkApiRequestService {
             .compile("^.*(https://m\\.youtube|https://www\\.twitch\\.tv/|https://youtu\\.be/).*$");
 
     private static final Integer TARGET_GROUP_ID = -79268570; //-139228227;
+
+    private static final Pattern VALIDATE_PATTERN = Pattern.compile("\\[club[0-9]+\\|[^]]+");
 
     private static final Integer countOfVkPosts = 5;
 
@@ -274,5 +277,19 @@ public class VkApiRequestService {
             allPostsWithoutAttachments.forEach(p -> p.setPreparedToPost(true));
             postRepository.saveAll(allPostsWithoutAttachments);
         }
+    }
+    public String validateText(String text) {
+        Matcher matcher = VALIDATE_PATTERN.matcher(text);
+
+        while (matcher.find()) {
+            String group = matcher.group() + ']';
+            text = text.replace(
+                    group,
+                    group.substring(
+                            group.indexOf('|') + 1,
+                            group.length() - 1)
+            );
+        }
+        return text;
     }
 }

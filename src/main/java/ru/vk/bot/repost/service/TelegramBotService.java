@@ -43,7 +43,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     @Value("${tg.bot.name}")
     private String name;
 
-    private static final long CHAT_ID = 363052334; //-1001247006240L;
+    private static final long CHAT_ID = 363052334 ; //-1001247006240L; -1001243404896L
 
     @Autowired
     public TelegramBotService(DefaultBotOptions options, VkPostRepository repository) {

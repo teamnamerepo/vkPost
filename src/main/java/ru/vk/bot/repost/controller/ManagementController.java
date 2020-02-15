@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.vk.bot.repost.service.TelegramBotService;
 
 import java.util.HashSet;
@@ -53,4 +56,79 @@ public class ManagementController {
     public String getStatusOfJob() {
         return !TelegramBotService.isStopped ? "Job was stopped" : "Job is working";
     }
+
+    @GetMapping("/change")
+    public void change() {
+        EditMessageText editMessage = new EditMessageText();
+        editMessage.setChatId(-1001243404896L);
+        editMessage.setMessageId(14);
+        EditMessageReplyMarkup r = new EditMessageReplyMarkup();
+
+
+//        r.setReplyMarkup(null);
+//        r.setChatId(-1001243404896L);
+//        r.setMessageId(14);
+//        try {
+//            service.execute(r);
+//        } catch (TelegramApiException e) {
+//            e.printStackTrace();
+//        }
+
+        editMessage.setParseMode("html");
+
+        editMessage.disableWebPagePreview();
+
+        editMessage.setText(
+                "\uD83D\uDCA5РОЗЫГРЫШ НА 10 000 RUB\uD83D\uDCA5\n" +
+                        "\n" +
+                        "❗ВАЖНО: Будет 5 победителей по 2000 RUB каждому❗\n" +
+                        "\n" +
+                        "Правила розыгрыша:\n" +
+                        "\n" +
+                        "1. Будь подписан на канал!\n" +
+                        "2. Нажми кнопку \"Участовать!\" под этим постом!\n" +
+                        "\n" +
+                        "Результаты 15 февраля\uD83E\uDD73\n" +
+                        "\n" +
+                        "Всем удачи!\uD83D\uDD25\n" +
+                        "*****\n" +
+                        "Победители: <a href =\"https://t.me/csgo_looser\">Илья</a>, " +
+                        "<a href =\"https://t.me/obito_uchih\">vlad</a>, " +
+                        "<a href =\"https://t.me/MyLifeDAya\">German Nekrasov</a>, " +
+                        "<a href =\"https://t.me/divinity_mirror\">Роман Romanov</a>, " +
+                        "<a href =\"https://t.me/mambaU\">L S</a>"
+                );
+
+        try {
+            service.execute(editMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 }
+/*
+"\uD83D\uDCA5РОЗЫГРЫШ НА 10 000 RUB\uD83D\uDCA5\n" +
+        "\n" +
+        "❗ВАЖНО: Будет 5 победителей по 2000 RUB каждому❗\n" +
+        "\n" +
+        "Правила розыгрыша:\n" +
+        "\n" +
+        "1. Будь подписан на канал!\n" +
+        "2. Нажми кнопку \"Участовать!\" под этим постом!\n" +
+        "\n" +
+        "Результаты 15 февраля\uD83E\uDD73\n" +
+        "\n" +
+        "Всем удачи!\uD83D\uDD25\n" +
+        "*****\n" +
+        "Победители: <a href =\"https://t.me/csgo_looser\">Илья</a>, " +
+        "<a href =\"https://t.me/obito_uchih\">vlad</a>, " +
+        "<a href =\"https://t.me/MyLifeDAya\">German Nekrasov</a>, " +
+        "<a href =\"https://t.me/divinity_mirror\">Роман Romanov</a>, " +
+        "<a href =\"https://t.me/mambaU\">L S</a>"
+
+        "[vlad](https://t.me/obito_uchih), " +
+                "[German Nekrasov](https://t.me/MyLifeDAya), " +
+                "[Роман Romanov](https://t.me/divinity_mirror), " +
+                "[L S](https://t.me/mambaU)"
+
+        */
