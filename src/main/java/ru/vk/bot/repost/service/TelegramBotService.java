@@ -1,16 +1,18 @@
 package ru.vk.bot.repost.service;
 
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
@@ -28,14 +30,16 @@ import java.util.List;
  */
 
 @Service
-@Transactional
 public class TelegramBotService extends TelegramLongPollingBot {
 
     private final Logger LOGGER = LoggerFactory.getLogger(TelegramBotService.class);
 
     public static boolean isStopped = true;
 
-    private final VkPostRepository repository;
+    private final VkPostRepository vkPostRepository;
+
+    @Autowired
+    CompetitionService competitionService;
 
     @Value("${tg.bot.token}")
     private String token;
@@ -43,16 +47,30 @@ public class TelegramBotService extends TelegramLongPollingBot {
     @Value("${tg.bot.name}")
     private String name;
 
-    private static final long CHAT_ID = 363052334 ; //-1001247006240L; -1001243404896L
+    private static final long CHAT_ID = 363052334; //-1001247006240L; -1001243404896L
 
     @Autowired
-    public TelegramBotService(DefaultBotOptions options, VkPostRepository repository) {
+    public TelegramBotService(DefaultBotOptions options,
+                              VkPostRepository vkPostRepository) {
         super(options);
-        this.repository = repository;
+        this.vkPostRepository = vkPostRepository;
     }
 
+    private Message send(SendMessage sendMessage) {
+        try {
+            return execute(sendMessage);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @SneakyThrows
     @Override
     public void onUpdateReceived(Update update) {
+        if (update != null) {
+            competitionService.execute(update, this::send);
+        }
     }
 
     @Override
@@ -67,7 +85,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     public void repost() {
         if (!isStopped) {
-            List<VkPost> postsFromDb = repository.findAllByIsSentFalseAndPreparedToPostTrue();
+            List<VkPost> postsFromDb = vkPostRepository.findAllByIsSentFalseAndPreparedToPostTrue();
 
             if (!postsFromDb.isEmpty()) {
                 postsFromDb.sort(Comparator.comparing(VkPost::getDate));
@@ -76,7 +94,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                     LOGGER.info("Post with id: " + post.getId() + " has sent");
                 }
             }
-            repository.saveAll(postsFromDb);
+            vkPostRepository.saveAll(postsFromDb);
         }
     }
 
@@ -150,7 +168,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     }
 
     public void flushDefinedAmountOfPosts(Integer amount) {
-        List<VkPost> allByIsSentFalse = repository.findAllByIsSentFalse();
+        List<VkPost> allByIsSentFalse = vkPostRepository.findAllByIsSentFalse();
 
         allByIsSentFalse.stream()
                 .sorted(Comparator.comparing(VkPost::getDate).reversed())
@@ -160,6 +178,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 .forEach(this::execute);
 
         allByIsSentFalse.forEach(post -> post.setIsSent(true));
-        repository.saveAll(allByIsSentFalse);
+        vkPostRepository.saveAll(allByIsSentFalse);
     }
 }

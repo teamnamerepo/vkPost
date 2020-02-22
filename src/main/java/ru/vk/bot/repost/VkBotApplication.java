@@ -22,6 +22,7 @@ public class VkBotApplication {
         try {
             api.registerBot(context.getBean(TelegramBotService.class));
 
+
         } catch (TelegramApiRequestException e) {
             e.printStackTrace();
         }
