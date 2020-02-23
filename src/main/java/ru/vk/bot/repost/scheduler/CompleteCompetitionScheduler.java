@@ -14,6 +14,7 @@ import ru.vk.bot.repost.entities.Winner;
 import ru.vk.bot.repost.repository.CompetitionRepository;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +30,7 @@ public class CompleteCompetitionScheduler {
 
     @Scheduled(fixedDelay = 30000)
     public void completeCompetitions() {
-        repository.findAllByFinishDate(LocalDateTime.now().withSecond(0).withNano(0))
+        repository.findAllByFinishDate(LocalDateTime.now(ZoneId.of("Europe/Moscow")).withSecond(0).withNano(0))
                 .forEach(competition -> {
 
                     String editedMessage = competition.getText();
@@ -75,7 +76,10 @@ public class CompleteCompetitionScheduler {
                             }
                         }
 
-                        editedMessage = editedMessage + "\n" + "******\n Победители: " + builder.toString();
+                        editedMessage = editedMessage +
+                                "\n" + "******\n Победители: " +
+                                builder.delete(builder.length() - 2, builder.length());
+
                         editMessageText.setMessageId(competition.getMessageId());
                         editMessageText.setChatId(competition.getChat().getChatId());
                         editMessageText.setText(editedMessage);

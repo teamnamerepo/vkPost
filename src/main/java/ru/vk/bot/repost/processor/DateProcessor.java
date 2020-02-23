@@ -12,7 +12,10 @@ import ru.vk.bot.repost.interfaces.UpdateHandler;
 import ru.vk.bot.repost.repository.CompetitionRepository;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 
 @Component
 @AllArgsConstructor
@@ -42,7 +45,8 @@ public class DateProcessor implements UpdateHandler<Message> {
                             .longValue()
             );
         }
-        if (finishedDateTime != null && LocalDateTime.now().compareTo(finishedDateTime) < 0) {
+        if (finishedDateTime != null &&
+                LocalDateTime.now(ZoneId.of("Europe/Moscow")).compareTo(finishedDateTime) < 0) {
 
             Competition currentCompetition = chatManager.getCurrentCompetition();
 
