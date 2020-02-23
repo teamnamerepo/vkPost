@@ -65,32 +65,36 @@ public class AddCompetitionChatProcessor implements UpdateHandler<Message> {
                     chatManager.setCurrentManagedChat(chat);
                     chatManagerRepository.save(chatManager);
 
-                    sender.send(new SendMessage(
+                    sender.send
+                            (new SendMessage(
+                                    update.getFrom()
+                                            .getId()
+                                            .longValue(),
+                                    "Нажмите 'выбор чата', чтобы выбрать этот чат"));
+                } else {
+                    sender.send(
+                            new SendMessage(
+                                    update.getFrom()
+                                            .getId()
+                                            .longValue(),
+                                    "Вы должны быть администратором или создателем этого чата"
+                            ));
+                }
+            } catch (TelegramApiException e) {
+                sender.send(
+                        new SendMessage(
+                                update.getFrom()
+                                        .getId()
+                                        .longValue(),
+                                "Бот не является администратором этого чата"));
+            }
+        } else {
+            sender.send(
+                    new SendMessage(
                             update.getFrom()
                                     .getId()
                                     .longValue(),
                             "Нажмите 'выбор чата', чтобы выбрать этот чат"));
-                } else {
-                    sender.send(new SendMessage(
-                            update.getFrom()
-                                    .getId()
-                                    .longValue(),
-                            "Вы должны быть администратором или создателем этого чата"
-                    ));
-                }
-            } catch (TelegramApiException e) {
-                sender.send(new SendMessage(
-                        update.getFrom()
-                                .getId()
-                                .longValue(),
-                        "Бот не является администратором этого чата"));
-            }
-        } else {
-            sender.send(new SendMessage(
-                    update.getFrom()
-                            .getId()
-                            .longValue(),
-                    "Нажмите 'выбор чата', чтобы выбрать этот чат"));
         }
     }
 }

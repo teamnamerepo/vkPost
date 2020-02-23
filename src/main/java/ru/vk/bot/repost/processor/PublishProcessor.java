@@ -34,29 +34,37 @@ public class PublishProcessor implements UpdateHandler<Message> {
     public void handleUpdate(Message update, Sender sender, ChatManager chatManager) {
         Competition currentCompetition = chatManager.getCurrentCompetition();
 
-        Message sentMessage = sender.send(
-                new SendMessage(
-                        chatManager
-                                .getCurrentManagedChat()
-                                .getChatId()
-                        ,
-                        currentCompetition.getText()
-                )
-                        .setReplyMarkup(getParticipantCounterKey(currentCompetition))
-        );
+        if (currentCompetition.getFinishDate() != null) {
 
-        sender.send(new SendMessage(
-                update.getFrom().getId().longValue(),
-                "Конкурс опубликован")
-                .setReplyMarkup(KeyboardUtil.getCommonKeyboard()));
+            Message sentMessage = sender.send(
+                    new SendMessage(
+                            chatManager
+                                    .getCurrentManagedChat()
+                                    .getChatId()
+                            ,
+                            currentCompetition.getText()
+                    )
+                            .setReplyMarkup(getParticipantCounterKey(currentCompetition))
+            );
 
-        currentCompetition.setChat(chatManager.getCurrentManagedChat());
-        currentCompetition.setMessageId(sentMessage.getMessageId());
-        competitionRepository.save(currentCompetition);
+            sender.send(new SendMessage(
+                    update.getFrom().getId().longValue(),
+                    "Конкурс опубликован")
+                    .setReplyMarkup(KeyboardUtil.getCommonKeyboard()));
 
-        chatManager.setCurrentCompetition(null);
-        chatManagerRepository.save(chatManager);
+            currentCompetition.setChat(chatManager.getCurrentManagedChat());
+            currentCompetition.setMessageId(sentMessage.getMessageId());
+            competitionRepository.save(currentCompetition);
 
+            chatManager.setCurrentCompetition(null);
+            chatManagerRepository.save(chatManager);
+        } else {
+            sender.send(
+                    new SendMessage(
+                            update.getFrom().getId().longValue(),
+                            "Установите дату")
+            );
+        }
     }
 
     public InlineKeyboardMarkup getParticipantCounterKey(Competition competition) {

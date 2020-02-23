@@ -336,4 +336,19 @@
            ]]>
         </sql>
     </changeSet>
+    <changeSet id="v-22" author="competition_api">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                <![CDATA[
+                select count(1) from information_schema.table_constraints
+                    where constraint_name = 'uniq_tgId'
+                ]]>
+            </sqlCheck>
+        </preConditions>
+        <sql>
+        <![CDATA[
+            alter table chat_managers add constraint uniq_tgId unique(telegram_id)
+        ]]>
+        </sql>
+    </changeSet>
 </databaseChangeLog>

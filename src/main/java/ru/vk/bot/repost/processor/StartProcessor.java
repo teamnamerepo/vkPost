@@ -13,12 +13,12 @@ import ru.vk.bot.repost.util.KeyboardUtil;
 
 @Component
 @AllArgsConstructor
-public class DefaultMenuProcessor implements UpdateHandler<Message> {
+public class StartProcessor implements UpdateHandler<Message> {
 
     private final ChatManagerRepository chatManagerRepository;
     @Override
     public Action getStatus() {
-        return Action.DEFAULT;
+        return Action.START;
     }
 
     @Override

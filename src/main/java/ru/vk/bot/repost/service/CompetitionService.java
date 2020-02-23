@@ -65,10 +65,6 @@ public class CompetitionService {
                 Competition currentCompetition = manager.getCurrentCompetition();
                 UpdateHandler<Message> messageUpdateHandler;
 
-                if (update.getMessage().getForwardFromChat() != null) {
-                    messageHandlerMap.get(Action.ADD_NEW_CHAT);
-                }
-
                 if (currentCompetition != null) {
 
                     if (currentCompetition.getAction() == null) {
@@ -78,11 +74,12 @@ public class CompetitionService {
                             messageUpdateHandler = messageHandlerMap.get(action);
                             messageUpdateHandler.handleUpdate(message, sender, manager);
                         } else {
-                            messageHandlerMap.get(Action.DEFAULT)
+                            messageHandlerMap.get(Action.START)
                                     .handleUpdate(message, sender, null);
                         }
                     } else {
                         if (Action.NONE.equals(currentCompetition.getAction())) {
+
                             if (Action.getStatusMap().get(message.getText()) != null) {
                                 messageUpdateHandler =
                                         messageHandlerMap.get(Action.getStatusMap().get(message.getText()));
@@ -115,7 +112,7 @@ public class CompetitionService {
                     }
                 }
             } else {
-                messageHandlerMap.get(Action.DEFAULT).handleUpdate(message, sender, null);
+                messageHandlerMap.get(Action.START).handleUpdate(message, sender, null);
             }
         } else if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
@@ -128,6 +125,7 @@ public class CompetitionService {
 
             if (Action.ADD_PARTICIPANT.equals(key)) {
                 callbackQueryUpdateHandler.handleUpdate(callbackQuery, sender, null);
+                return;
 
             } else {
                 Optional<ChatManager> chatManagerOptional =

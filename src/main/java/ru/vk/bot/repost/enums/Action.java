@@ -18,6 +18,7 @@ public enum Action {
     SET_NUMBER_OF_WINNERS("set_number_of_winners"),
     ADD_CHAT("Добавить чат"),
     ADD_PARTICIPANT("new_participant"),
+    START("start"),
     DEFAULT("default"),
     PROVIDE_WINNERS("Установить победителей"),
     SET_WINNERS("set_winners"),
